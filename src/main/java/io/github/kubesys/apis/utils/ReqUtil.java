@@ -35,13 +35,21 @@ public class ReqUtil {
 		super();
 	}
 
+	
+	/**********************************************************
+	 * 
+	 *                     BearerToken
+	 * 
+	 **********************************************************/
+
+	
 	/**
 	 * @param req                      request
 	 * @param token                    token
 	 * @param body                     body
 	 * @return                         request
 	 */
-	private static HttpRequestBase createRequest(HttpRequestBase req, String token, String body) {
+	private static HttpRequestBase createBearerTokenRequest(HttpRequestBase req, String token, String body) {
 		if (req instanceof HttpEntityEnclosingRequestBase) {
 			setHttpEntity((HttpEntityEnclosingRequestBase) req, body);
 		}
@@ -70,51 +78,89 @@ public class ReqUtil {
 		request.addHeader("Connection", "keep-alive");
 	}
 	
+	/**
+	 * @param token                       token
+	 * @param uri                         uri
+	 * @param body                        body
+	 * @return                            request or null
+	 * @throws MalformedURLException      MalformedURLException
+	 */
+	public static HttpPost postWithBearerToken(String token, String uri, String body) throws MalformedURLException {
+		return (HttpPost) createBearerTokenRequest(new HttpPost(new URL(uri).toString()), token, body);
+	}
+	
+	/**
+	 * @param token                       token
+	 * @param uri                         uri
+	 * @param body                        body
+	 * @return                            request or null
+	 * @throws MalformedURLException      MalformedURLException
+	 */
+	public static HttpPut putWithBearerToken(String token, String uri, String body) throws MalformedURLException {
+		return (HttpPut) createBearerTokenRequest(new HttpPut(new URL(uri).toString()), token, body);
+	}
+	
+	/**
+	 * @param token                       token
+	 * @param uri                         uri
+	 * @return                            request or null
+	 * @throws MalformedURLException      MalformedURLException
+	 */
+	public static HttpDelete deleteWithBearerToken(String token, String uri) throws MalformedURLException {
+		return (HttpDelete) createBearerTokenRequest(new HttpDelete(new URL(uri).toString()), token, null);
+	}
+	
+	/**
+	 * @param token                       token
+	 * @param uri                         uri
+	 * @return                            request or null
+	 * @throws MalformedURLException      MalformedURLException
+	 */
+	public static HttpGet getWithBearerToken(String token, String uri) throws MalformedURLException {
+		return (HttpGet) createBearerTokenRequest(new HttpGet(new URL(uri).toString()), token, null);
+	}
+	
+	
 	/**********************************************************
 	 * 
-	 *                     Core
+	 *                     BearerToken
 	 * 
 	 **********************************************************/
-	/**
-	 * @param token                       token
-	 * @param uri                         uri
-	 * @param body                        body
-	 * @return                            request or null
-	 * @throws MalformedURLException      MalformedURLException
-	 */
-	public static HttpPost post(String token, String uri, String body) throws MalformedURLException {
-		return (HttpPost) createRequest(new HttpPost(new URL(uri).toString()), token, body);
+	
+	private static String createUserToken(String uri, String user, String token) {
+		StringBuilder sb = new StringBuilder();
+		if (uri.startsWith("http")) {
+			sb.append("http://").append(user).append(":").append(token)
+						.append("@").append(uri.substring("http://".length()));
+		} else {
+			sb.append("https://").append(user).append(":").append(token)
+				.append("@").append(uri.substring("https://".length()));
+		}
+		return sb.toString();
 	}
 	
 	/**
-	 * @param token                       token
-	 * @param uri                         uri
-	 * @param body                        body
-	 * @return                            request or null
-	 * @throws MalformedURLException      MalformedURLException
+	 * @param req                      request
+	 * @param token                    token
+	 * @param body                     body
+	 * @return                         request
 	 */
-	public static HttpPut put(String token, String uri, String body) throws MalformedURLException {
-		return (HttpPut) createRequest(new HttpPut(new URL(uri).toString()), token, body);
+	private static HttpRequestBase createUserTokenRequest(HttpRequestBase req, String body) {
+		if (req instanceof HttpEntityEnclosingRequestBase) {
+			setHttpEntity((HttpEntityEnclosingRequestBase) req, body);
+		}
+		return req;
 	}
 	
 	/**
+	 * @param user                        user
 	 * @param token                       token
 	 * @param uri                         uri
 	 * @return                            request or null
 	 * @throws MalformedURLException      MalformedURLException
 	 */
-	public static HttpDelete delete(String token, String uri) throws MalformedURLException {
-		return (HttpDelete) createRequest(new HttpDelete(new URL(uri).toString()), token, null);
-	}
-	
-	/**
-	 * @param token                       token
-	 * @param uri                         uri
-	 * @return                            request or null
-	 * @throws MalformedURLException      MalformedURLException
-	 */
-	public static HttpGet get(String token, String uri) throws MalformedURLException {
-		return (HttpGet) createRequest(new HttpGet(new URL(uri).toString()), token, null);
+	public static HttpGet getWithUserToken(String user, String token, String uri) throws MalformedURLException {
+		return (HttpGet) createUserTokenRequest(new HttpGet(new URL(createUserToken(uri, user, token)).toString()), null);
 	}
 	
 }
