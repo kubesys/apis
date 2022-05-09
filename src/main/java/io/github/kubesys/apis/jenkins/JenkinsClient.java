@@ -26,6 +26,7 @@ public class JenkinsClient extends AbstractClient {
 	static {
 		mapper.put("getVersion", "");
 		mapper.put("getUser", "/user/");
+		mapper.put("getInstalledPlugins", "/pluginManager/pluginsSearch?query=&limit=1000");
 	}
 	
 	public JenkinsClient(String url, String user, String token) throws Exception {
@@ -42,5 +43,9 @@ public class JenkinsClient extends AbstractClient {
 				this.getMasterUrl() + mapper.get("getUser") + user + "/api/json"));
 	}
 	
+	public JsonNode getInstalledPlugins() throws Exception {
+		return this.getResponse(ReqUtil.getWithBasicToken(this.token, 
+				this.getMasterUrl() + mapper.get("getInstalledPlugins")));
+	}
 
 }

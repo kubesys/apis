@@ -19,6 +19,7 @@ public class JenkinsTest {
 		JenkinsClient client = ClientFactory.createJenkinsClient();
 		System.out.println(client.getVersion().toPrettyString());
 		System.out.println(client.getUser("admin").toPrettyString());
+		System.out.println(client.getInstalledPlugins().toPrettyString());
 	}
 
 }
