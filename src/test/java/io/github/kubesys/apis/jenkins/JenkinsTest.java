@@ -17,7 +17,8 @@ public class JenkinsTest {
 	 */
 	public static void main(String[] args) throws Exception {
 		JenkinsClient client = ClientFactory.createJenkinsClient();
-		System.out.println(client.api().toPrettyString());
+		System.out.println(client.getVersion().toPrettyString());
+		System.out.println(client.getUser("admin").toPrettyString());
 	}
 
 }

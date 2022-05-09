@@ -13,6 +13,8 @@ import java.util.logging.Logger;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.TrustManager;
 
+import org.apache.http.Header;
+import org.apache.http.StatusLine;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpRequestBase;
@@ -26,6 +28,7 @@ import org.apache.http.impl.client.HttpClients;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import io.github.kubesys.apis.utils.SSLUtil;
 
@@ -46,9 +49,6 @@ public abstract class AbstractClient {
 	public static final Logger m_logger = Logger.getLogger(AbstractClient.class.getName());
 
 
-	/**
-	 * mapper
-	 */
 	protected static final Map<String, String> mapper = new HashMap<>();
 	
 	/**
@@ -74,8 +74,9 @@ public abstract class AbstractClient {
 	 * @throws Exception exception
 	 */
 	public AbstractClient(String masterUrl, String token) throws Exception {
-		this.masterUrl = masterUrl;
-		this.token = token;
+		this.masterUrl = !masterUrl.endsWith("/") ? masterUrl 
+				: masterUrl.substring(0, masterUrl.length() - 1);
+		this.token = (token == null) ? "" : token ;
 		this.httpClient = createDefaultHttpClient();
 	}
 
@@ -149,27 +150,40 @@ public abstract class AbstractClient {
 		}
 	}
 
+	
+	/**
+	 * @param req req
+	 * @return json json
+	 * @throws Exception exception
+	 */
+	public synchronized JsonNode getHeader(HttpRequestBase req, String key) throws Exception {
+		CloseableHttpResponse resp = httpClient.execute(req);
+		
+		StatusLine status = resp.getStatusLine();
+		if (status.getStatusCode() != 200) {
+			throw new RuntimeException(status.getStatusCode() + ":" + status.getReasonPhrase());
+		}
+		
+		ObjectNode json = new ObjectMapper().createObjectNode();
+		final Header[] hdrs = resp.getHeaders("X-Jenkins");
+		json.put("version", hdrs.length == 0 ? "unknown" : hdrs[0].getValue());
+		return json;
+	}
+	
 	/**
 	 * @param req req
 	 * @return json json
 	 * @throws Exception exception
 	 */
 	public synchronized JsonNode getResponse(HttpRequestBase req) throws Exception {
-		return parseResponse(httpClient.execute(req));
+		CloseableHttpResponse resp = httpClient.execute(req);
+		StatusLine status = resp.getStatusLine();
+		if (status.getStatusCode() != 200) {
+			throw new RuntimeException(status.getStatusCode() + ":" + status.getReasonPhrase());
+		}
+		return parseResponse(resp);
 	}
 
-	/**
-	 * 
-	 */
-	protected void close() {
-		if (httpClient != null) {
-			try {
-				httpClient.close();
-			} catch (IOException e) {
-				m_logger.warning(e.toString());
-			}
-		}
-	}
 
 	/**
 	 * @return masterUrl
@@ -192,4 +206,17 @@ public abstract class AbstractClient {
 		return httpClient;
 	}
 	
+	/**
+	 * 
+	 */
+	protected void close() {
+		if (httpClient != null) {
+			try {
+				httpClient.close();
+			} catch (IOException e) {
+				m_logger.warning(e.toString());
+			}
+		}
+	}
+
 }

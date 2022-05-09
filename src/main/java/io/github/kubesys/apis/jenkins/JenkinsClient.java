@@ -23,12 +23,24 @@ import io.github.kubesys.apis.utils.ReqUtil;
  */
 public class JenkinsClient extends AbstractClient {
 
+	static {
+		mapper.put("getVersion", "");
+		mapper.put("getUser", "/user/");
+	}
+	
 	public JenkinsClient(String url, String user, String token) throws Exception {
 		super(url, Base64.getUrlEncoder().encodeToString((user + ":" + token).getBytes()));
 	}
 	
-	public JsonNode api() throws Exception {
-		return this.getResponse(ReqUtil.getWithBasicToken(this.token, this.getMasterUrl() + "api/json"));
+	public JsonNode getVersion() throws Exception {
+		return this.getHeader(ReqUtil.getWithBasicToken(this.token, 
+				this.getMasterUrl() + "/api/json"), "X-Jenkins");
 	}
+	
+	public JsonNode getUser(String user) throws Exception {
+		return this.getResponse(ReqUtil.getWithBasicToken(this.token, 
+				this.getMasterUrl() + mapper.get("getUser") + user + "/api/json"));
+	}
+	
 
 }

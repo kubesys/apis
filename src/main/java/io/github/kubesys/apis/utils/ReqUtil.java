@@ -17,7 +17,7 @@ import org.apache.http.entity.StringEntity;
 
 /**
  * 
- * It is used for creating various HttpRequest
+ * It is used for creating get, post, put and delete HttpRequest on various authorizations.
  * 
  * @author wuheng@iscas.ac.cn
  * @since  0.1 
@@ -154,6 +154,38 @@ public class ReqUtil {
 	 */
 	public static HttpGet getWithBasicToken(String token, String uri) throws MalformedURLException {
 		return (HttpGet) createBasicTokenRequest(new HttpGet(new URL(uri).toString()), token , null);
+	}
+	
+	/**
+	 * @param token                       token
+	 * @param uri                         uri
+	 * @param body                        body
+	 * @return                            request or null
+	 * @throws MalformedURLException      MalformedURLException
+	 */
+	public static HttpPost postWithBasicToken(String token, String uri, String body) throws MalformedURLException {
+		return (HttpPost) createBasicTokenRequest(new HttpPost(new URL(uri).toString()), token, body);
+	}
+	
+	/**
+	 * @param token                       token
+	 * @param uri                         uri
+	 * @param body                        body
+	 * @return                            request or null
+	 * @throws MalformedURLException      MalformedURLException
+	 */
+	public static HttpPut putWithBasicToken(String token, String uri, String body) throws MalformedURLException {
+		return (HttpPut) createBasicTokenRequest(new HttpPut(new URL(uri).toString()), token, body);
+	}
+	
+	/**
+	 * @param token                       token
+	 * @param uri                         uri
+	 * @return                            request or null
+	 * @throws MalformedURLException      MalformedURLException
+	 */
+	public static HttpDelete deleteWithBasicToken(String token, String uri) throws MalformedURLException {
+		return (HttpDelete) createBasicTokenRequest(new HttpDelete(new URL(uri).toString()), token, null);
 	}
 	
 }

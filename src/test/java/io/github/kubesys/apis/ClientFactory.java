@@ -11,7 +11,7 @@ import io.github.kubesys.apis.jenkins.JenkinsClient;
  */
 public class ClientFactory {
 
-	static String JENKINS_URL = "http://39.100.91.95:31017/";
+	static String JENKINS_URL = "http://39.100.91.95:31017";
 	
 	static String JENKINS_TOKEN = "";
 
