@@ -38,7 +38,29 @@ public class ReqUtil {
 	
 	/**********************************************************
 	 * 
-	 *                     BearerToken
+	 *                     Common
+	 * 
+	 **********************************************************/
+	
+	private static void setHttpTokenHeader(HttpRequestBase request, String token) {
+		request.addHeader("Authorization", token);
+		request.addHeader("Connection", "keep-alive");
+	}
+	
+	/**
+	 * @param req                        request
+	 * @param body                       body
+	 */
+	private static void setHttpBodyEntity(HttpRequestBase req, String body) {
+		if (req instanceof HttpEntityEnclosingRequestBase) {
+			((HttpEntityEnclosingRequestBase) req).setEntity(
+					new StringEntity(body == null ? "" : body, ContentType.APPLICATION_JSON));
+		}
+	}
+	
+	/**********************************************************
+	 * 
+	 *                     Bearer Token
 	 * 
 	 **********************************************************/
 
@@ -50,33 +72,11 @@ public class ReqUtil {
 	 * @return                         request
 	 */
 	private static HttpRequestBase createBearerTokenRequest(HttpRequestBase req, String token, String body) {
-		if (req instanceof HttpEntityEnclosingRequestBase) {
-			setHttpEntity((HttpEntityEnclosingRequestBase) req, body);
-		}
-		setBearerHeader(req, token);
+		setHttpTokenHeader(req, "Bearer " + token);
+		setHttpBodyEntity(req, body);
 		return req;
 	}
 	
-	/**
-	 * @param req                        request
-	 * @param body                       body
-	 */
-	private static void setHttpEntity(HttpEntityEnclosingRequestBase req, String body) {
-		req.setEntity(new StringEntity(
-					body == null ? "" : body, 
-					ContentType.APPLICATION_JSON));
-	}
-	
-	/**
-	 * @param request                     request
-	 * @param token                       token
-	 */
-	private static void setBearerHeader(HttpRequestBase request, String token) {
-		if (token != null) {
-			request.addHeader("Authorization", "Bearer " + token);
-		}
-		request.addHeader("Connection", "keep-alive");
-	}
 	
 	/**
 	 * @param token                       token
@@ -123,21 +123,15 @@ public class ReqUtil {
 	
 	/**********************************************************
 	 * 
-	 *                     BearerToken
+	 *                     Basic Token
 	 * 
 	 **********************************************************/
 	
-	private static String createUserToken(String uri, String user, String token) {
-		StringBuilder sb = new StringBuilder();
-		if (uri.startsWith("http")) {
-			sb.append("http://").append(user).append(":").append(token)
-						.append("@").append(uri.substring("http://".length()));
-		} else {
-			sb.append("https://").append(user).append(":").append(token)
-				.append("@").append(uri.substring("https://".length()));
-		}
-		return sb.toString();
+	public static String toBasicToken(String user, String token) {
+		return null;
 	}
+	
+	
 	
 	/**
 	 * @param req                      request
@@ -145,10 +139,9 @@ public class ReqUtil {
 	 * @param body                     body
 	 * @return                         request
 	 */
-	private static HttpRequestBase createUserTokenRequest(HttpRequestBase req, String body) {
-		if (req instanceof HttpEntityEnclosingRequestBase) {
-			setHttpEntity((HttpEntityEnclosingRequestBase) req, body);
-		}
+	private static HttpRequestBase createBasicTokenRequest(HttpRequestBase req, String token, String body) {
+		setHttpTokenHeader(req, "Basic " + token);
+		setHttpBodyEntity(req, body);
 		return req;
 	}
 	
@@ -159,8 +152,8 @@ public class ReqUtil {
 	 * @return                            request or null
 	 * @throws MalformedURLException      MalformedURLException
 	 */
-	public static HttpGet getWithUserToken(String user, String token, String uri) throws MalformedURLException {
-		return (HttpGet) createUserTokenRequest(new HttpGet(new URL(createUserToken(uri, user, token)).toString()), null);
+	public static HttpGet getWithBasicToken(String token, String uri) throws MalformedURLException {
+		return (HttpGet) createBasicTokenRequest(new HttpGet(new URL(uri).toString()), token , null);
 	}
 	
 }

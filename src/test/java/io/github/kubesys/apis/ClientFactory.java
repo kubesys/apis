@@ -13,7 +13,7 @@ public class ClientFactory {
 
 	static String JENKINS_URL = "http://39.100.91.95:31017/";
 	
-	static String JENKINS_TOKEN = "1183e5eafd8372fd97bb42edf3ca0fe4aa";
+	static String JENKINS_TOKEN = "";
 
 	public static JenkinsClient createJenkinsClient() throws Exception {
 		return new JenkinsClient(JENKINS_URL, "admin", JENKINS_TOKEN);

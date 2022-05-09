@@ -5,6 +5,8 @@ package io.github.kubesys.apis.jenkins;
 
 
 
+import java.util.Base64;
+
 import com.fasterxml.jackson.databind.JsonNode;
 
 import io.github.kubesys.apis.AbstractClient;
@@ -21,15 +23,12 @@ import io.github.kubesys.apis.utils.ReqUtil;
  */
 public class JenkinsClient extends AbstractClient {
 
-	protected String user;
-	
 	public JenkinsClient(String url, String user, String token) throws Exception {
-		super(url, token);
-		this.user = user;
+		super(url, Base64.getUrlEncoder().encodeToString((user + ":" + token).getBytes()));
 	}
 	
 	public JsonNode api() throws Exception {
-		return this.getResponse(ReqUtil.getWithUserToken(this.user, this.getToken(), this.getMasterUrl() + "api/json"));
+		return this.getResponse(ReqUtil.getWithBasicToken(this.token, this.getMasterUrl() + "api/json"));
 	}
 
 }
